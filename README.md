@@ -7,7 +7,7 @@ Everybody is invited to improve the notes :) Just send a pull request.
 Optimierungsdreieck in Verteilten Systemen
 
            C
-         /     \
+         /   \
        P   -   A
 
 C (Consistency) 
