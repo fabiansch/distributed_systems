@@ -10,9 +10,9 @@ Optimierungsdreieck in Verteilten Systemen
          /   \
        P   -   A
 
-C (Consistency) 
-A (Availibility) 
-P (Tolerant dem Netzwerk)
+**C** (Consistency) 
+**A** (Availibility) 
+**P** (Tolerant dem Netzwerk)
 
 - CP - Banktransaktion
 - CA - Filesystem / LDAP
@@ -30,7 +30,8 @@ alternativ: System ohne kohärenten Speicher das sich allerdings verhält als ob
 - Location Transparenz (z.B. REST mit DNS)
 - being open
   - (z.B. IDL)
-  - problematisch bei heterogenen Systemen => daher minimale Objektmenge (in Praktikum war die minimale Objektmenge ein Integer)
+  - problematisch bei heterogenen Systemen => daher minimale Objektmenge
+    - in Praktikum war die minimale Objektmenge ein Integer
 - being scalable
   - Skalierbarkeit bedingt replizieren.
   - Man kann örtlich skalieren und ... skalieren.
@@ -196,9 +197,9 @@ Clients bewegen sich nicht
 - Continuos mit Commits und maximaler Abweichung.
   - Freeze bei zu großer Abweichung (Transaktionen müssen warten bis Zustände synchronisiert sind)
 - Consistent Ordering
-  1. sequential consistency
-  1. causal consistency für additive Dinge
-  1. fifo ohne Beispiele
+  - sequential consistency
+  - causal consistency für additive Dinge
+  - fifo ohne Beispiele
   
 ## Client centric (Clients bewegen sich)
 Client Anforderung: monotonisches lesen/schreiben
