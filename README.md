@@ -14,76 +14,110 @@ C (Consistency)
 A (Availibility) 
 P (Tolerant dem Netzwerk)
 
-CP - Banktransaktion
-CA - Filesystem / LDAP
-AP - DNS
-
-jrun -cp CaDBase.jar:Server.jar middleware.core.server.Server 10.0.1.1 real
+- CP - Banktransaktion
+- CA - Filesystem / LDAP
+- AP - DNS
 
 # Introduction
 
 ## Was ist ein VS?
-Tannenbaum liefert Definition. Z.B.: System ohne kohärenten Speicher das sich allerdings verhält als ob er kohärent wäre.
+Tannenbaum liefert spezielle Definition.
 
-## Design Goals: 7 Transparenzziele
+alternativ: System ohne kohärenten Speicher das sich allerdings verhält als ob dieser kohärent wäre.
+
+## Design Goals:
+7 Transparenzziele
 - Location Transparenz (z.B. REST mit DNS)
-- being open. (z.B. IDL) problematisch bei heterogenen Systemen => daher Minimale Objektmenge
-- Skalierbarkeit bedingt replizieren. Mach kann örtlich skalieren und ... skalieren. Verteilter Algorithmus ist notwendig.
-- Pitfaults: 8 Annahmen die man nie annehmen sollte.
+- being open
+  - (z.B. IDL)
+  - problematisch bei heterogenen Systemen => daher minimale Objektmenge (in Praktikum war die minimale Objektmenge ein Integer)
+- being scalable
+  - Skalierbarkeit bedingt replizieren.
+  - Man kann örtlich skalieren und ... skalieren.
+  - Verteilter Algorithmus ist notwendig.
+- Pitfalls
+  - 8 Annahmen die man nie annehmen sollte.
 
-## 3 types of DS
+## Types of DS
+Ganz grob drei verschiedene typen:
 - Schnelles rechnen
 - Informationen verteilen
 - IOT
 
 # Architektur:
 ## Styles
-- Layered: Funktional
-- Object-Based: Service Orientiert (Objekte in Hierarchischem Namespace)
-- Resource-Based: CRUD (machbar mit http)
-- Publish Subscribe: Message Queue (Kafka (groß), RapidMQ, Ross)
+- Layered
+  - Funktional
+- Object-Based
+  - Service Orientiert (Objekte in Hierarchischem Namespace)
+- Resource-Based
+  - CRUD (machbar mit http)
+- Publish Subscribe
+  - Message Queue (Kafka für grosse Systeme, RapidMQ und Ross für eher kleinere)
 
 ## Middleware organization
-- Wrapper: Gleiche Middleware und Wrapper binden die Applikationslogik an
-- Interceptors: gutes Bild im Buch
-- Modifiable Middleware: Was muss man machen damit Middleware erweiterbar ist..
+- Wrapper
+  - Ziel: Gleiche Middleware und anwendungsspezifische Wrapper binden die Applikationslogik an
+- Interceptors
+  - gutes Bild im Buch
+- Modifiable Middleware
+  - Was muss man machen damit Middleware erweiterbar ist..
 
 ## System Architecture
 Publish Subscribe (Bild)
 
 Thin Client, Fat Client
 
-- Client-Server-Server (CSS) - Zentralisierter Ansatz
-- Peer-To-Peer - Dezentraler Ansatz. Tannenbaum macht immer CORD P2P was ein spezielles P2P ist (Cassandra beruht darauf und ist hoch skalierbar)
-- Hybrid (google, amazon: relativ homogene und gut verbundene Datacenter und somit teils P2P möglich)
-
+- Zentralisierter Ansatz
+  - Client-Server-Server (CSS)
+- Dezentraler Ansatz
+  - Peer-To-Peer (P2P)
+  - Tannenbaum macht immer CORD P2P was ein spezielles P2P ist (Cassandra beruht darauf und ist hoch skalierbar)
+- Hybrider Ansatz
+  - (google, amazon: relativ homogene und gut verbundene Datacenter und somit teils P2P möglich)
 
 # Processes:
 
-kennen wir schon, aber neue Begrifflichkeit kommt dazu:
-- statefull und stateless (Nachricht ist unabhängig zu Vorgängernachrichten)
-- zustandvariant (fileserver) und zustandinvariant (Nachricht beeinflusst nicht den internen Zustandsautomaten)
-- persistent (Nachrichten werden behalten bis Abnehmer gefunden wird) und transient (Nachrichten werden verworfen wenn sich niemand interessiert) (Es geht um nachrichtenbasierte Systeme. Was wenn niemand sich für eine Nachricht interessiert)
+kennen wir schon, aber neue Begrifflichkeiten kommen dazu:
+- statefull
+  - Nachricht ist **abhängig** zu Vorgängernachrichten
+- stateless
+  - Nachricht ist **unabhängig** zu Vorgängernachrichten
+- zustandvariant
+  - Nachricht beeinflusst den internen Zustandsautomaten
+  - z.B. Fileserver
+- zustandinvariant
+  - Nachricht beeinflusst den internen Zustandsautomaten **nicht**
+- persistent
+  - In nachrichtenbasierten Systemen werden Nachrichten **behalten** bis Abnehmer gefunden wird
+- transient
+  - In nachrichtenbasierten Systemen werden Nachrichten **verworfen** wenn kein Abnehmer gefunden wird
 
-- virtualisierung NEIN
-- network user interface NEIN
-- server NEIN
+- virtualisierung **NEIN**
+- network user interface **NEIN**
+- server **NEIN**
 
 # Communication:
 ## Foundations
-- layered protocols: osi
-- types of communication: synchron und asynchron (Bildchen mit Zeitstrahl)
+- layered protocols
+  - osi
+- types of communication
+  - synchron und asynchron (Bildchen mit Zeitstrahl)
 
 ## RPC
 Eine Mittleware die auf Bitcodierung basiert hat den Vorteil, dass sie sehr effizient ist, allerdings
-reist sie aus dem Design Muster aus! Daher z.B. RPC.
+reist sie aus dem Design Muster aus! Daher z.B. **RPC**.
 
 ## Message Oriented Communication
-Neben RPCs gibt es Modelle die auf Queues basieren
 
-Point-to-Point (P2P) (Queues - einer steckt etwas rein, einer holt es raus) (durch Queue starke Entkopplung, Producer kann schon tot sein bevor Consumer beginnt zu arbeiten)
+- Neben RPCs gibt es Modelle die auf Queues basieren
 
-Publish-Subscribe (Topics - Sobald Konsumenten ein Topic abonnieren werden ihnen alle über eine bestimmte Zeit zwischengespeicherten und auch alle neuen Nachrichten von einem Producer zugesendet bis sie sich wieder abmelden. 
+  - Point-to-Point (P2P)
+    - Queues: einer steckt etwas rein, einer holt es raus
+    - durch Queue starke Entkopplung: Producer kann schon tot sein bevor Consumer beginnt zu arbeiten.
+
+  - Publish-Subscribe
+    - Topics: sobald Konsumenten ein Topic abonnieren werden ihnen alle über eine bestimmte Zeit zwischengespeicherten und auch alle zukünftigen Nachrichten von einem Producer zugesendet bis sie sich wieder abmelden. 
 
 ## Multicast Communication
 zum Beispiel Publish-Subscribe (Multicast ist nur eine Begrifflichkeit und kann verschieden implementiert werden)
@@ -94,53 +128,78 @@ Interessant wenn Transaktionen ins Spiel kommen (z.B. bei Replikation einer Date
 - gossip
 
 # Naming:
-Warum? für dynamische Bindung der Dienste für Location Transparency
+
+- Warum? für dynamische Bindung der Dienste um Location Transparency zu erreichen
+
 ## Definitionen: names, identifiers and addresses
 
-- flat fuer peer to peer
+- flat für peer to peer
 - hierarchisch für …
 
-# Coordination: (Ordnung in die Nachrichten bringen)
-## physikalische Uhr:
-Problem ist die gemeinsame Zeitbasis, dafür gibt es das Network-Time-Protocol (NTP) das eine die Zeit einer zentralen Atomuhr beinhaltet.
+# Coordination:
+- Ziel: Ordnung in die Nachrichten bringen.
 
-Berkeley Algorithmus funktioniert ohne zentrale Atomuhr, dabei beachten: niemals Zeit zurückstellen!
-## logische Uhr:
+## physikalische Uhr
+- Problem ist die gemeinsame Zeitbasis
+  - Network-Time-Protocol (NTP) stellt Zeit einer zentralen Atomuhr bereit.
+  - Berkeley Algorithmus funktioniert ohne zentrale Atomuhr
+    - Wichtig: niemals Zeit zurückstellen!
+    
+## logische Uhr
 beruhen beide auf der Happens Before Relation
 - Lamport Uhr
-Nachteil: wenn Prozesse nicht miteinander kommunizieren, keine totale Ordnung - nur kausale Ordnung - oft okay wie z.B. für WhatsApp aber für sicherheitskritische Dinge inakzeptabel.
-
-Warum WhatsApp ab und an falsch sortiert: Sortierung muss gequeued werden und dies wird nur über eine gewisse Zeit gemacht. (Bsp: Client versendet mit timestamp versehene Nachricht erst Tage später. Die anderen Nachrichten derselben Zeit sind schon längst aus der Queue verschwunden und in Datenbanken geschrieben.)
+  - Nachteil: wenn Prozesse nicht miteinander kommunizieren, keine totale Ordnung - nur kausale Ordnung - oft okay wie z.B. für WhatsApp aber für sicherheitskritische Dinge inakzeptabel.
+  - Warum WhatsApp ab und an falsch sortiert: Sortierung muss gequeued werden und dies wird nur über eine gewisse Zeit gemacht. (Bsp: Client versendet mit timestamp versehene Nachricht erst Tage später. Die anderen Nachrichten derselben Zeit sind schon längst aus der Queue verschwunden und in Datenbanken geschrieben.)
 - Vektor Uhr 
-Nachteil Vektor Uhr: Skaliert nicht (Algorithmus muss man für Lamport sowie für Vektor zumindest illustrieren können! Ebenso können Verständnisfragen kommen)
+  - Nachteil Vektor Uhr: Skaliert nicht
+
+(Algorithmus muss man für Lamport sowie für Vektor zumindest illustrieren können! Ebenso können Verständnisfragen kommen)
 
 ## Mutual exclusion
-In verteilten Systemen haben wir keine atomare Zugriffe wie zum Beispiel mit Semaphoren.
+In verteilten Systemen haben wir keine atomaren Zugriffe wie zum Beispiel mit Semaphoren in nicht verteilten Systemen.
 
 - Mutual exclusion mit zentralem Server
-- Mutual exclusion Verteilt (problematisch wenn Koordinator Tod, aber ebenso bei zentralem Ansatz)
-- Token-Ring (dezentral, jeder muss jeden kennen um bei Ausfällen den Ring aufrecht erhalten zu können) 
+- Mutual exclusion Verteilt
+  - problematisch wenn Koordinator Tod, aber dies gilt auch bei zentralem Ansatz
+- Token-Ring
+  - dezentral, jeder muss jeden kennen um bei Ausfällen den Ring aufrecht erhalten zu können 
 - Dezentralisierter Algorithmus
 
 ## Election algoritms
-- Bully (Besten finden z.B. via Broadcast, …, Gewinner informiert alle anderen)
-- Ring (Zettel und jeder trägt sich ein, zweite runde nötig damit jeder erfährt wer der Gewinner ist)
+- Bully
+  1. Besten finden z.B. via Broadcast
+  1. …
+  1. Gewinner informiert alle anderen
+- Ring
+  - Zettel und jeder trägt sich ein, zweite runde nötig damit jeder erfährt wer der Gewinner ist.
+
 Beide basieren auf ein stabiles Netzwerk…
 - Ripple Algorithmus für Netze die instabil sind.
 
 ## Location systems
-- GPS (Genaue Ortsbestimmung benötigt 4 Satelliten: x, y, z und Zeit)
-- wenn kein GPS - relative Ortung über Landmarken im Raum (eine Dimension 2+, 2 Dimension 3+,..)
-- oder relative Ortung über Delays im Netzwerk oder Stärke von Signalen wie WLAN
+- GPS
+  - Genaue Ortsbestimmung benötigt 4 Satelliten für: x, y, z und die Zeit
+- wenn kein GPS
+  - relative Ortung über Landmarken im Raum (eine Dimension 2+, 2 Dimension 3+,..)
+- wenn keine Landmarken
+  - relative Ortung über Delays im Netzwerk oder Stärke von Signalen wie dem WLAN
 
 ## Gossip Based Coordination
-(Wie bekommt man Nachrichten über das Netzwerk verteilt - jeder spricht mit seinen Nachbarn)
+- Wie bekommt man Nachrichten über das Netzwerk verteilt: jeder spricht mit seinen Nachbarn.
 
-# Consistency and Replication (Bisher: Wie verteilen wir nachrichten, jetzt: was machen mit den Daten)
-## Data Centric (Clients bewegen sich nicht)
-Continuos mit Commits und maximaler Abweichung. Freeze bei zu großer Abweichung (Transaktionen müssen warten bis Zustände synchronisiert sind)
+# Consistency and Replication
+- Bisher: Wie verteilen wir Nachrichten
+- Jetzt: Was machen mit den Daten
 
-Consistent Ordering (1. sequential consistency - 2. causal consistency für additive Dinge - 3. fifo ohne Beispiele)
+## Data Centric
+Clients bewegen sich nicht
+- Continuos mit Commits und maximaler Abweichung.
+  - Freeze bei zu großer Abweichung (Transaktionen müssen warten bis Zustände synchronisiert sind)
+- Consistent Ordering
+  1. sequential consistency
+  1. causal consistency für additive Dinge
+  1. fifo ohne Beispiele
+  
 ## Client centric (Clients bewegen sich)
 Client Anforderung: monotonisches lesen/schreiben
 
